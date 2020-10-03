@@ -305,3 +305,166 @@ mysql> select database();
             | MILLER | 1300.00 |
             +--------+---------+
             mysql> select ename,sal from emp where sal between 1100 and 3000;
+            mysql> select ename from emp where ename between 'A' and 'c';
+            +-------+
+            | ename |
+            +-------+
+            | ALLEN |
+            | BLAKE |
+            | ADAMS |
+            +-------+
+            用在数字上都是闭区间，用在字符上是左闭右开
+        找出哪些人的津贴为null
+            mysql> select ename,comm from emp where comm is null;
+            +--------+------+
+            | ename  | comm |
+            +--------+------+
+            | SMITH  | NULL |
+            | JONES  | NULL |
+            | BLAKE  | NULL |
+            | CLARK  | NULL |
+            | SCOTT  | NULL |
+            | KING   | NULL |
+            | ADAMS  | NULL |
+            | JAMES  | NULL |
+            | FORD   | NULL |
+            | MILLER | NULL |
+            +--------+------+
+            null不是0
+        找出那些人津贴不为空
+            mysql> select ename,comm from emp where comm is not null;
+            +--------+---------+
+            | ename  | comm    |
+            +--------+---------+
+            | ALLEN  |  300.00 |
+            | WARD   |  500.00 |
+            | MARTIN | 1400.00 |
+            | TURNER |    0.00 |
+            +--------+---------+
+        找出哪些人没有津贴
+            mysql> select ename,comm from emp where comm is null or comm=0;
+            +--------+------+
+            | ename  | comm |
+            +--------+------+
+            | SMITH  | NULL |
+            | JONES  | NULL |
+            | BLAKE  | NULL |
+            | CLARK  | NULL |
+            | SCOTT  | NULL |
+            | KING   | NULL |
+            | TURNER | 0.00 |
+            | ADAMS  | NULL |
+            | JAMES  | NULL |
+            | FORD   | NULL |
+            | MILLER | NULL |
+            +--------+------+
+        找出工作岗位是manager和salesman的员工
+            mysql> select ename,job from emp where job='salesman' or job='manager';
+            +--------+----------+
+            | ename  | job      |
+            +--------+----------+
+            | ALLEN  | SALESMAN |
+            | WARD   | SALESMAN |
+            | JONES  | MANAGER  |
+            | MARTIN | SALESMAN |
+            | BLAKE  | MANAGER  |
+            | CLARK  | MANAGER  |
+            | TURNER | SALESMAN |
+            +--------+----------+
+        找出薪资大于1000的，并且部门编号是20或者30的部门员工
+            mysql> select ename,sal,deptno from emp where sal>1000 and deptno=20 or deptno=30;
+            +--------+---------+--------+
+            | ename  | sal     | deptno |
+            +--------+---------+--------+
+            | ALLEN  | 1600.00 |     30 |
+            | WARD   | 1250.00 |     30 |
+            | JONES  | 2975.00 |     20 |
+            | MARTIN | 1250.00 |     30 |
+            | BLAKE  | 2850.00 |     30 |
+            | SCOTT  | 3000.00 |     20 |
+            | TURNER | 1500.00 |     30 |
+            | ADAMS  | 1100.00 |     20 |
+            | JAMES  |  950.00 |     30 |！！！！！！！！！！！！！
+            | FORD   | 3000.00 |     20 |
+            +--------+---------+--------+
+            and比or的优先级高sal>1000 and deptno=20会组对
+            改进
+            mysql> select ename,sal,deptno from emp where sal>1000 and (deptno=20 or deptno=30);
+            +--------+---------+--------+
+            | ename  | sal     | deptno |
+            +--------+---------+--------+
+            | ALLEN  | 1600.00 |     30 |
+            | WARD   | 1250.00 |     30 |
+            | JONES  | 2975.00 |     20 |
+            | MARTIN | 1250.00 |     30 |
+            | BLAKE  | 2850.00 |     30 |
+            | SCOTT  | 3000.00 |     20 |
+            | TURNER | 1500.00 |     30 |
+            | ADAMS  | 1100.00 |     20 |
+            | FORD   | 3000.00 |     20 |
+            +--------+---------+--------+
+
+        in等同于or
+        找出工作岗位是manager和salesman的员工
+            mysql> select ename,job from emp where job in ('salesman','manager')
+                -> ;
+            +--------+----------+
+            | ename  | job      |
+            +--------+----------+
+            | ALLEN  | SALESMAN |
+            | WARD   | SALESMAN |
+            | JONES  | MANAGER  |
+            | MARTIN | SALESMAN |
+            | BLAKE  | MANAGER  |
+            | CLARK  | MANAGER  |
+            | TURNER | SALESMAN |
+            +--------+----------+
+        not in 不在这几个值当中
+            mysql> select ename,sal from emp where sal not in(800,5000);
+            +--------+---------+
+            | ename  | sal     |
+            +--------+---------+
+            | ALLEN  | 1600.00 |
+            | WARD   | 1250.00 |
+            | JONES  | 2975.00 |
+            | MARTIN | 1250.00 |
+            | BLAKE  | 2850.00 |
+            | CLARK  | 2450.00 |
+            | SCOTT  | 3000.00 |
+            | TURNER | 1500.00 |
+            | ADAMS  | 1100.00 |
+            | JAMES  |  950.00 |
+            | FORD   | 3000.00 |
+            | MILLER | 1300.00 |
+            +--------+---------+
+
+    3.模糊查询
+        找出名字中含有o的。在模糊查询中需要掌握两个特殊的符号（% _）
+        %：任意多个字符
+        _:任意一个字符
+            mysql> select ename from emp where ename like '%o%';
+            +-------+
+            | ename |
+            +-------+
+            | JONES |
+            | SCOTT |
+            | FORD  |
+            +-------+
+        找出第二个字母是a的
+            mysql> select ename from emp where ename like '_a%';
+            +--------+
+            | ename  |
+            +--------+
+            | WARD   |
+            | MARTIN |
+            | JAMES  |
+            +--------+
+        找出名字中有_的   \具有转义的作用
+            mysql> select ename from emp where ename like '%\_%';
+        找出名字中最后一个字母是t的
+            mysql> select ename from emp where ename like '%t';
+            +-------+
+            | ename |
+            +-------+
+            | SCOTT |
+            +-------+
