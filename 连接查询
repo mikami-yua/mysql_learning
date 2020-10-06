@@ -1,0 +1,213 @@
+连接查询
+    多表联合查询，取出最终的结果，一般业务对多张表进行查询
+
+    连接查询的分类
+        年代划分
+            SQL92
+            SQL99
+        表的连接方式
+            内连接
+                等值连接
+                非等值连接
+                自连接
+            外连接
+                左外连接
+                右外连接
+            全连接
+
+    表的连接查询有笛卡尔现象
+        mysql> select ename,dname from emp,dept;
+        找出每个员工的部门名称，要求显示员工名和部门名
+        14*4条 没有任何限制会是两个表条数的乘积
+        mysql> select ename,dname from emp,dept;
+        +--------+------------+
+        | ename  | dname      |
+        +--------+------------+
+        | SMITH  | ACCOUNTING |
+        | SMITH  | RESEARCH   |
+        | SMITH  | SALES      |
+        | SMITH  | OPERATIONS |
+        | ALLEN  | ACCOUNTING |
+        | ALLEN  | RESEARCH   |
+        | ALLEN  | SALES      |
+        | ALLEN  | OPERATIONS |
+        | WARD   | ACCOUNTING |
+        | WARD   | RESEARCH   |
+        | WARD   | SALES      |
+        。。。。。。。。。。。。。56条
+
+    表的别名
+        mysql> select e.ename,d.dname from emp e,dept d;
+        1.执行效率高（两个表的列有同名的）
+        2.可读性好
+
+
+    避免笛卡尔乘积-----加过滤条件
+        不会减少匹配次数，只是显示的时候过滤了
+        mysql> select e.ename,d.dname from emp e,dept d where e.deptno=d.deptno;
+        +--------+------------+
+        | ename  | dname      |
+        +--------+------------+
+        | CLARK  | ACCOUNTING |
+        | KING   | ACCOUNTING |
+        | MILLER | ACCOUNTING |
+        | SMITH  | RESEARCH   |
+        | JONES  | RESEARCH   |
+        | SCOTT  | RESEARCH   |
+        | ADAMS  | RESEARCH   |
+        | FORD   | RESEARCH   |
+        | ALLEN  | SALES      |
+        | WARD   | SALES      |
+        | MARTIN | SALES      |
+        | BLAKE  | SALES      |
+        | TURNER | SALES      |
+        | JAMES  | SALES      |
+        +--------+------------+
+        SQL92 以后不使用了
+
+    内连接
+        等值连接：特点条件是等量关系
+
+        找出每个员工的部门名称，要求显示员工名和部门名
+        SQL92：mysql> select e.ename,d.dname from emp e,dept d where e.deptno=d.deptno;
+        SQL99：mysql> select
+                             e.ename,d.dname
+                      from
+                             emp e
+                      join
+                             dept d
+                      on(后面是表的连接条件)
+                             e.deptno=d.deptno;
+                      where（表连接之后还可以where）
+                             xxxxxx
+        92语法的表连接和数据过滤通过and相连，结构不够清晰
+        99语法更清晰
+        mysql> select e.ename,d.dname from emp e join dept d on e.deptno=d.deptno;
+        +--------+------------+
+        | ename  | dname      |
+        +--------+------------+
+        | CLARK  | ACCOUNTING |
+        | KING   | ACCOUNTING |
+        | MILLER | ACCOUNTING |
+        | SMITH  | RESEARCH   |
+        | JONES  | RESEARCH   |
+        | SCOTT  | RESEARCH   |
+        | ADAMS  | RESEARCH   |
+        | FORD   | RESEARCH   |
+        | ALLEN  | SALES      |
+        | WARD   | SALES      |
+        | MARTIN | SALES      |
+        | BLAKE  | SALES      |
+        | TURNER | SALES      |
+        | JAMES  | SALES      |
+        +--------+------------+
+        select
+               e.ename,d.dname
+        from
+               emp e
+        inner join（inner可以省略）
+               dept d
+        on(后面是表的连接条件)
+               e.deptno=d.deptno;
+        where（表连接之后还可以where）
+               xxxxxx
+
+    内连接-----非等值连接
+        特点：连接条件的关系是非等值关系
+
+        找出每个员工的工资等级，显示工资，员工名，工资等级
+        mysql> select e.ename,e.sal,s.grade from emp e join salgrade s on e.sal>s.losal and e.sal<s.hisal;
+        +--------+---------+-------+
+        | ename  | sal     | grade |
+        +--------+---------+-------+
+        | SMITH  |  800.00 |     1 |
+        | ALLEN  | 1600.00 |     3 |
+        | WARD   | 1250.00 |     2 |
+        | JONES  | 2975.00 |     4 |
+        | MARTIN | 1250.00 |     2 |
+        | BLAKE  | 2850.00 |     4 |
+        | CLARK  | 2450.00 |     4 |
+        | KING   | 5000.00 |     5 |
+        | TURNER | 1500.00 |     3 |
+        | ADAMS  | 1100.00 |     1 |
+        | JAMES  |  950.00 |     1 |
+        | MILLER | 1300.00 |     2 |
+        +--------+---------+-------+
+
+    内连接------自连接
+        特点：一张表看作两张表
+        找出每个员工的上级领导，显示员工名和领导名
+        mysql> select e.ename,f.ename
+            -> from emp e join emp f
+            -> on e.mgr=f.empno;
+        +--------+-------+
+        | ename  | ename |
+        +--------+-------+
+        | SMITH  | FORD  |
+        | ALLEN  | BLAKE |
+        | WARD   | BLAKE |
+        | JONES  | KING  |
+        | MARTIN | BLAKE |
+        | BLAKE  | KING  |
+        | CLARK  | KING  |
+        | SCOTT  | JONES |
+        | TURNER | BLAKE |
+        | ADAMS  | SCOTT |
+        | JAMES  | BLAKE |
+        | FORD   | JONES |
+        | MILLER | CLARK |
+        +--------+-------+
+
+
+
+    外连接
+        内连接两张表没有主次之分
+            内连接匹配不上就不查了
+        外连接AB表进行连接，一张表是主表，一张表是副表，主要查询主表的数据，捎带着
+        查询副表。如果附表中没有数据和主表进行匹配，副表自动模拟出null和主表匹配
+            外连接匹配不上就嗯查
+
+        分类：
+            左外连接
+                左为主表
+            右外连接
+                右为主表
+
+        找出每个员工的上级领导
+        mysql> select a.ename as 'employee',b.ename as 'empolyer'
+            -> from emp a
+            -> left join emp b（左边是主表，无论如何都要查询出来）
+            -> on a.mgr=b.empno;
+        +----------+----------+
+        | employee | empolyer |
+        +----------+----------+
+        | SMITH    | FORD     |
+        | ALLEN    | BLAKE    |
+        | WARD     | BLAKE    |
+        | JONES    | KING     |
+        | MARTIN   | BLAKE    |
+        | BLAKE    | KING     |
+        | CLARK    | KING     |
+        | SCOTT    | JONES    |
+        | KING     | NULL     |------------自动补充null
+        | TURNER   | BLAKE    |
+        | ADAMS    | SCOTT    |
+        | JAMES    | BLAKE    |
+        | FORD     | JONES    |
+        | MILLER   | CLARK    |
+        +----------+----------+
+        outer可以省略
+
+        以后外连接居多
+
+        外连接的特点。主表的数据一定都会展示出来
+
+        找出那个部门没有员工
+        mysql> select d.dname from dept d left join emp e on
+            -> e.deptno=d.deptno
+            -> where e.empno is null;
+        +------------+
+        | dname      |
+        +------------+
+        | OPERATIONS |
+p35

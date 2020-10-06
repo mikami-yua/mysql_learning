@@ -162,3 +162,87 @@
         |     30 | SALESMAN  |  1600.00 |
         +--------+-----------+----------+
 p24
+    having
+        找出每个部门的最高薪资，显示薪资大于2900的数据
+        mysql> select deptno,max(sal) from emp group by deptno having max(sal)>2900;
+        +--------+----------+
+        | deptno | max(sal) |
+        +--------+----------+
+        |     10 |  5000.00 |
+        |     20 |  3000.00 |
+        +--------+----------+
+        2 rows in set (0.01 sec)
+        mysql> select deptno,max(sal) from emp where sal>2900 group by deptno;
+        +--------+----------+
+        | deptno | max(sal) |
+        +--------+----------+
+        |     10 |  5000.00 |
+        |     20 |  3000.00 |
+        +--------+----------+
+        2 rows in set (0.00 sec)
+        参加分组的数据变少，效率提高
+        【建议】能使用where过滤的使用where
+
+        找出每个部门的平均薪资，显示薪资大于2000的数据
+        mysql> select deptno,avg(sal) from emp group by deptno having avg(sal)>2000;
+        +--------+-------------+
+        | deptno | avg(sal)    |
+        +--------+-------------+
+        |     10 | 2916.666667 |
+        |     20 | 2175.000000 |
+        +--------+-------------+
+        不能用where只能用having
+
+        【having是group by的搭档，having不能单独使用】
+
+一个完整的DQL语句
+            select      5
+                xxx
+            from        1
+                xxx
+            where       2
+                xxx
+            group by    3 过滤完再分组
+                xxx
+            having      4
+                xxx
+            order by    6 最后排序输出
+                xxx
+
+查询结果去重
+    distinct去重
+    查找工作岗位
+    mysql> select distinct job from emp;
+    +-----------+
+    | job       |
+    +-----------+
+    | CLERK     |
+    | SALESMAN  |
+    | MANAGER   |
+    | ANALYST   |
+    | PRESIDENT |
+    +-----------+
+
+    distinct只能出现在所有字段的最前面（后面所有的字段联合去重）
+    mysql> select distinct deptno,job from emp order by deptno;
+    +--------+-----------+
+    | deptno | job       |
+    +--------+-----------+
+    |     10 | CLERK     |
+    |     10 | MANAGER   |
+    |     10 | PRESIDENT |
+    |     20 | ANALYST   |
+    |     20 | CLERK     |
+    |     20 | MANAGER   |
+    |     30 | CLERK     |
+    |     30 | MANAGER   |
+    |     30 | SALESMAN  |
+    +--------+-----------+
+
+    统计岗位的数量
+    mysql> select count(distinct job) from emp;
+    +---------------------+
+    | count(distinct job) |
+    +---------------------+
+    |                   5 |
+    +---------------------+
