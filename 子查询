@@ -1,0 +1,92 @@
+子查询
+    select中嵌套select
+
+    可以出现的位置
+        select from where
+
+    where中子查询
+        找出高于平均薪资的员工
+        mysql> select e.ename,e.sal from emp e where e.sal>(select avg(sal) from emp);
+        +-------+---------+
+        | ename | sal     |
+        +-------+---------+
+        | JONES | 2975.00 |
+        | BLAKE | 2850.00 |
+        | CLARK | 2450.00 |
+        | SCOTT | 3000.00 |
+        | KING  | 5000.00 |
+        | FORD  | 3000.00 |
+        +-------+---------+
+
+    from中嵌套子查询
+        找出每个部门薪水的薪资等级
+        1.找出每个部门的平均薪水
+        mysql> select deptno,avg(sal) from emp group by deptno;
+        +--------+-------------+
+        | deptno | avg(sal)    |
+        +--------+-------------+
+        |     10 | 2916.666667 |
+        |     20 | 2175.000000 |
+        |     30 | 1566.666667 |
+        +--------+-------------+
+
+        mysql> select e.*,s.grade
+        from(select deptno,avg(sal) as avgs from emp group by deptno) e
+        【注意给新表起名和新表中需要用到的字段起名】
+        join salgrade s
+        on e.avgs between s.losal and s.hisal;
+        +--------+-------------+-------+
+        | deptno | avgs        | grade |
+        +--------+-------------+-------+
+        |     30 | 1566.666667 |     3 |
+        |     10 | 2916.666667 |     4 |
+        |     20 | 2175.000000 |     4 |
+        +--------+-------------+-------+
+
+        找出每个部门薪资等级的平均值
+        1.得到一个部门的所有薪资等级
+        mysql> select e.deptno,s.grade from emp e join salgrade s on e.sal between s.losal and s.hisal;
+        +--------+-------+
+        | deptno | grade |
+        +--------+-------+
+        |     20 |     1 |
+        |     30 |     3 |
+        |     30 |     2 |
+        |     20 |     4 |
+        |     30 |     2 |
+        |     30 |     4 |
+        |     10 |     4 |
+        |     20 |     4 |
+        |     10 |     5 |
+        |     30 |     3 |
+        |     20 |     1 |
+        |     30 |     1 |
+        |     20 |     4 |
+        |     10 |     2 |
+        +--------+-------+
+        2.对上面的表求平均数
+        mysql> select t.deptno,avg(sg)
+        from (select e.deptno,s.grade as sg from emp e join salgrade s on e.sal between s.losal and s.hisal) t
+        group by t.deptno;
+        +--------+---------+
+        | deptno | avg(sg) |
+        +--------+---------+
+        |     10 |  3.6667 |
+        |     20 |  2.8000 |
+        |     30 |  2.5000 |
+        +--------+---------+
+        或：
+        mysql> select e.deptno,avg(s.grade)
+            -> from emp e
+            -> join
+            -> salgrade s
+            -> on e.sal between s.losal and s.hisal
+            -> group by e.deptno;
+        +--------+--------------+
+        | deptno | avg(s.grade) |
+        +--------+--------------+
+        |     10 |       3.6667 |
+        |     20 |       2.8000 |
+        |     30 |       2.5000 |
+        +--------+--------------+
+p39
