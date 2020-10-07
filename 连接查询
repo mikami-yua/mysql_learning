@@ -211,3 +211,49 @@
         +------------+
         | OPERATIONS |
 p35
+    三张表连接
+        找出每个员工的部门名称和工资等级
+        mysql> select e.ename,d.dname,s.grade
+            -> from emp e join dept d on e.deptno=d.deptno前两张表先连
+            -> join salgrade s
+            -> on e.sal between s.losal and s.hisal;
+        +--------+------------+-------+
+        | ename  | dname      | grade |
+        +--------+------------+-------+
+        | SMITH  | RESEARCH   |     1 |
+        | ALLEN  | SALES      |     3 |
+        | WARD   | SALES      |     2 |
+        | JONES  | RESEARCH   |     4 |
+        | MARTIN | SALES      |     2 |
+        | BLAKE  | SALES      |     4 |
+        | CLARK  | ACCOUNTING |     4 |
+        | SCOTT  | RESEARCH   |     4 |
+        | KING   | ACCOUNTING |     5 |
+        | TURNER | SALES      |     3 |
+        | ADAMS  | RESEARCH   |     1 |
+        | JAMES  | SALES      |     1 |
+        | FORD   | RESEARCH   |     4 |
+        | MILLER | ACCOUNTING |     2 |
+        +--------+------------+-------+
+        找出每名员工的部门名称，工资等级，和上级领导
+        mysql> select e.ename,d.dname,s.grade,a.ename from emp e join dept d on e.deptno=d.deptno join salgrade s on e.sal between s.losal and s.hisal left join emp a on e.mgr=a.empno;
+        +--------+------------+-------+-------+
+        | ename  | dname      | grade | ename |
+        +--------+------------+-------+-------+
+        | SMITH  | RESEARCH   |     1 | FORD  |
+        | ALLEN  | SALES      |     3 | BLAKE |
+        | WARD   | SALES      |     2 | BLAKE |
+        | JONES  | RESEARCH   |     4 | KING  |
+        | MARTIN | SALES      |     2 | BLAKE |
+        | BLAKE  | SALES      |     4 | KING  |
+        | CLARK  | ACCOUNTING |     4 | KING  |
+        | SCOTT  | RESEARCH   |     4 | JONES |
+        | KING   | ACCOUNTING |     5 | NULL  |
+        | TURNER | SALES      |     3 | BLAKE |
+        | ADAMS  | RESEARCH   |     1 | SCOTT |
+        | JAMES  | SALES      |     1 | BLAKE |
+        | FORD   | RESEARCH   |     4 | JONES |
+        | MILLER | ACCOUNTING |     2 | CLARK |
+        +--------+------------+-------+-------+
+        left join不能省略join
+p37
