@@ -1,0 +1,31 @@
+union
+可以将查询结果集相加
+    找出工作岗位是salesman和manager的员工
+    mysql> select ename,job from emp where job in('manager','salesman');
+    +--------+----------+
+    | ename  | job      |
+    +--------+----------+
+    | ALLEN  | SALESMAN |
+    | WARD   | SALESMAN |
+    | JONES  | MANAGER  |
+    | MARTIN | SALESMAN |
+    | BLAKE  | MANAGER  |
+    | CLARK  | MANAGER  |
+    | TURNER | SALESMAN |
+    +--------+----------+
+    用or也行
+
+    mysql> select ename,job from emp where job='manager'
+        -> union
+        -> select ename,job from emp where job='salesman';
+    +--------+----------+
+    | ename  | job      |
+    +--------+----------+
+    | JONES  | MANAGER  |
+    | BLAKE  | MANAGER  |
+    | CLARK  | MANAGER  |
+    | ALLEN  | SALESMAN |
+    | WARD   | SALESMAN |
+    | MARTIN | SALESMAN |
+    | TURNER | SALESMAN |
+    +--------+----------+

@@ -1,0 +1,79 @@
+limit【重点】【分页查询靠这个】
+MySQL中特有的
+limit取结果集中的部分数据
+limit是sql中最后执行的语句
+    select      5
+        xxx
+    from        1
+        xxx
+    where       2
+        xxx
+    group by    3 过滤完再分组
+        xxx
+    having      4
+        xxx
+    order by    6 最后排序输出
+        xxx
+    limit       7 限制输出个数
+        xxx
+
+
+语法机制：
+    limit startIndex，length
+        startIndex：起始位置，从0开始
+        length：取几个
+
+    案例：取出工资前5名的员工
+        mysql> select ename,sal from emp order by sal desc;工资降序排列
+        mysql> select ename,sal from emp order by sal desc limit 0,5;
+        +-------+---------+
+        | ename | sal     |
+        +-------+---------+
+        | KING  | 5000.00 |
+        | SCOTT | 3000.00 |
+        | FORD  | 3000.00 |
+        | JONES | 2975.00 |
+        | BLAKE | 2850.00 |
+        +-------+---------+
+        mysql> select ename,sal from emp order by sal desc limit 5;
+        +-------+---------+
+        | ename | sal     |
+        +-------+---------+
+        | KING  | 5000.00 |
+        | SCOTT | 3000.00 |
+        | FORD  | 3000.00 |
+        | JONES | 2975.00 |
+        | BLAKE | 2850.00 |
+        +-------+---------+
+        limit只写一个数字默认起始位置是0
+
+        找出工资排名在第4-9的员工
+        mysql> select ename,sal from emp order by sal desc limit 3,8;
+        错了【第二个数字表示取几个】4-9一共6个人
+        mysql> select ename,sal from emp order by sal desc limit 3,6;
+        +--------+---------+
+        | ename  | sal     |
+        +--------+---------+
+        | JONES  | 2975.00 |
+        | BLAKE  | 2850.00 |
+        | CLARK  | 2450.00 |
+        | ALLEN  | 1600.00 |
+        | TURNER | 1500.00 |
+        | MILLER | 1300.00 |
+        +--------+---------+
+
+通用的标准分页sql
+    每页显示3条记录
+        第一页：0，3
+        第二页：3，3
+        第三页：6，3
+
+        每页显示的是pagesize条记录
+            pageno页：（pageno-1）*pagesize，pagesize
+
+        Java代码{
+            int pageno=2；
+            int pagesize=10；
+
+            limit （pageno-1）*pagesize，pagesize
+        }

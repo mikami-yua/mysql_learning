@@ -90,3 +90,25 @@
         |     30 |       2.5000 |
         +--------+--------------+
 p39
+
+    select后嵌套子查询
+        找出每个员工所在的部门名称
+        mysql> select e.ename,(select d.dname from dept d where e.deptno=d.deptno) as dname from emp e;
+        +--------+------------+
+        | ename  | dname      |
+        +--------+------------+
+        | SMITH  | RESEARCH   |
+        | ALLEN  | SALES      |
+        | WARD   | SALES      |
+        | JONES  | RESEARCH   |
+        | MARTIN | SALES      |
+        | BLAKE  | SALES      |
+        | CLARK  | ACCOUNTING |
+        | SCOTT  | RESEARCH   |
+        | KING   | ACCOUNTING |
+        | TURNER | SALES      |
+        | ADAMS  | RESEARCH   |
+        | JAMES  | SALES      |
+        | FORD   | RESEARCH   |
+        | MILLER | ACCOUNTING |
+        +--------+------------+

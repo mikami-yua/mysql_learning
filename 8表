@@ -1,0 +1,305 @@
+创建表
+    语法
+        create table 表名（
+            字段名1 数据类型，
+            字段名2 数据类型，
+            字段名3 数据类型，
+        ）；
+    mysql中的数据类型
+        int     整数型
+        bigint  长整型（long）
+        float   浮点型
+        double  双精度
+        date    日期类型（对应java.sql.date）
+        char    定长字符串(string)
+        varchar 可变长字符串（255最大）(stringbuffer)
+        blob    二进制大对象（存储图片视频等流媒体信息）
+        clob    字符大对象（存储较大文本）
+
+        在实际开发中。一个字段的长度固定（生日，性别）使用char
+        一共字段的长度不固定（简介，姓名）使用varchar
+
+    表名在数据库中一般建议以：t_ or tbl_ 开始
+
+    创建学生表
+        学生信息：
+            学号：bigint
+            姓名：varchar
+            性别：char
+            班级编号：int
+            生日：char
+
+        create table t_student(
+            no bigint,
+            name varchar(255),
+            sex char(1),
+            classno varchar(255),
+            birth char(10)
+        );
+
+插入数据
+    语法格式：
+        insert into 表名（字段1，字段2，字段3） values （值1，值2，值3）
+        【字段数量和值的数量相同，且数据类型对应】
+        insert into t_student(no,name,sex,classno,birth)
+        values(1,'zhangsan','m','highschool-grade3-class1','1950-10-12');
+        mysql> select * from t_student;
+        +------+----------+------+--------------------------+------------+
+        | no   | name     | sex  | classno                  | birth      |
+        +------+----------+------+--------------------------+------------+
+        |    1 | zhangsan | m    | highschool-grade3-class1 | 1950-10-12 |
+        +------+----------+------+--------------------------+------------+
+
+        insert into t_student(name,sex,classno,birth,no)
+        values('lisi','m','highschool-grade3-class1','1950-10-13',2);
+        mysql> select * from t_student;
+        +------+----------+------+--------------------------+------------+
+        | no   | name     | sex  | classno                  | birth      |
+        +------+----------+------+--------------------------+------------+
+        |    1 | zhangsan | m    | highschool-grade3-class1 | 1950-10-12 |
+        |    2 | lisi     | m    | highschool-grade3-class1 | 1950-10-13 |
+        +------+----------+------+--------------------------+------------+
+        只要前后能对上，无论顺序
+
+        insert into t_student(name)
+        values('wangwu');
+        mysql> select * from t_student;
+        +------+----------+------+--------------------------+------------+
+        | no   | name     | sex  | classno                  | birth      |
+        +------+----------+------+--------------------------+------------+
+        |    1 | zhangsan | m    | highschool-grade3-class1 | 1950-10-12 |
+        |    2 | lisi     | m    | highschool-grade3-class1 | 1950-10-13 |
+        | NULL | wangwu   | NULL | NULL                     | NULL       |
+        +------+----------+------+--------------------------+------------+
+        只写一个字段，其他字段自动插入null
+
+    删除表
+        drop table if exists t_student;
+
+        create table t_student(
+            no bigint,
+            name varchar(255),
+            sex char(1) default 'f',
+            classno varchar(255),
+            birth char(10)
+        );
+        mysql> desc t_student;
+        +---------+--------------+------+-----+---------+-------+
+        | Field   | Type         | Null | Key | Default | Extra |
+        +---------+--------------+------+-----+---------+-------+
+        | no      | bigint(20)   | YES  |     | NULL    |       |
+        | name    | varchar(255) | YES  |     | NULL    |       |
+        | sex     | char(1)      | YES  |     | f       |       |
+        | classno | varchar(255) | YES  |     | NULL    |       |
+        | birth   | char(10)     | YES  |     | NULL    |       |
+        +---------+--------------+------+-----+---------+-------+
+        insert into t_student(name)
+        values('wangwu');
+        mysql> select * from t_student;
+        +------+--------+------+---------+-------+
+        | no   | name   | sex  | classno | birth |
+        +------+--------+------+---------+-------+
+        | NULL | wangwu | f    | NULL    | NULL  |
+        +------+--------+------+---------+-------+
+        sex字段也有值
+
+        insert into t_student values(1,'zhangsan','m','highschool-grade3-class1','1950-10-12')
+        值的顺序不能改了
+        mysql> select * from t_student;
+         +------+----------+------+--------------------------+------------+
+         | no   | name     | sex  | classno                  | birth      |
+         +------+----------+------+--------------------------+------------+
+         | NULL | wangwu   | f    | NULL                     | NULL       |
+         |    1 | zhangsan | m    | highschool-grade3-class1 | 1950-10-12 |
+         +------+----------+------+--------------------------+------------+
+
+    一次插入多行数据
+         insert into t_student(no,name,sex,classno,birth)
+         values(3,'rose','f','highschool-grade2-class2','1952-01-01'),
+         (4,'jack','m','highschool-grade2-class2','1952-02-01'),
+         (5,'lisi','m','highschool-grade3-class2','1955-02-01');
+         mysql> select * from t_student;
+         +------+----------+------+--------------------------+------------+
+         | no   | name     | sex  | classno                  | birth      |
+         +------+----------+------+--------------------------+------------+
+         | NULL | wangwu   | f    | NULL                     | NULL       |
+         |    1 | zhangsan | m    | highschool-grade3-class1 | 1950-10-12 |
+         |    3 | rose     | f    | highschool-grade2-class2 | 1952-01-01 |
+         |    4 | jack     | m    | highschool-grade2-class2 | 1952-02-01 |
+         |    5 | lisi     | m    | highschool-grade3-class2 | 1955-02-01 |
+         +------+----------+------+--------------------------+------------+
+
+表的复制
+    create table emp1 as select * from emp;
+    mysql> select * from emp1;
+    +-------+--------+-----------+------+------------+---------+---------+--------+
+    | EMPNO | ENAME  | JOB       | MGR  | HIREDATE   | SAL     | COMM    | DEPTNO |
+    +-------+--------+-----------+------+------------+---------+---------+--------+
+    |  7369 | SMITH  | CLERK     | 7902 | 1980-12-17 |  800.00 |    NULL |     20 |
+    |  7499 | ALLEN  | SALESMAN  | 7698 | 1981-02-20 | 1600.00 |  300.00 |     30 |
+    |  7521 | WARD   | SALESMAN  | 7698 | 1981-02-22 | 1250.00 |  500.00 |     30 |
+    |  7566 | JONES  | MANAGER   | 7839 | 1981-04-02 | 2975.00 |    NULL |     20 |
+    |  7654 | MARTIN | SALESMAN  | 7698 | 1981-09-28 | 1250.00 | 1400.00 |     30 |
+    |  7698 | BLAKE  | MANAGER   | 7839 | 1981-05-01 | 2850.00 |    NULL |     30 |
+    |  7782 | CLARK  | MANAGER   | 7839 | 1981-06-09 | 2450.00 |    NULL |     10 |
+    |  7788 | SCOTT  | ANALYST   | 7566 | 1987-04-19 | 3000.00 |    NULL |     20 |
+    |  7839 | KING   | PRESIDENT | NULL | 1981-11-17 | 5000.00 |    NULL |     10 |
+    |  7844 | TURNER | SALESMAN  | 7698 | 1981-09-08 | 1500.00 |    0.00 |     30 |
+    |  7876 | ADAMS  | CLERK     | 7788 | 1987-05-23 | 1100.00 |    NULL |     20 |
+    |  7900 | JAMES  | CLERK     | 7698 | 1981-12-03 |  950.00 |    NULL |     30 |
+    |  7902 | FORD   | ANALYST   | 7566 | 1981-12-03 | 3000.00 |    NULL |     20 |
+    |  7934 | MILLER | CLERK     | 7782 | 1982-01-23 | 1300.00 |    NULL |     10 |
+    +-------+--------+-----------+------+------------+---------+---------+--------+
+
+    mysql> create table emp2 as select empno,ename from emp;
+    Query OK, 14 rows affected (0.03 sec)
+    Records: 14  Duplicates: 0  Warnings: 0
+
+    mysql> select * from emp2;
+    +-------+--------+
+    | empno | ename  |
+    +-------+--------+
+    |  7369 | SMITH  |
+    |  7499 | ALLEN  |
+    |  7521 | WARD   |
+    |  7566 | JONES  |
+    |  7654 | MARTIN |
+    |  7698 | BLAKE  |
+    |  7782 | CLARK  |
+    |  7788 | SCOTT  |
+    |  7839 | KING   |
+    |  7844 | TURNER |
+    |  7876 | ADAMS  |
+    |  7900 | JAMES  |
+    |  7902 | FORD   |
+    |  7934 | MILLER |
+    +-------+--------+
+
+
+
+将查询结果插入到一张表中
+
+    mysql> create table dept1 as select * from dept;
+    Query OK, 4 rows affected (0.03 sec)
+    Records: 4  Duplicates: 0  Warnings: 0
+
+    mysql> select * from dept1;
+    +--------+------------+----------+
+    | DEPTNO | DNAME      | LOC      |
+    +--------+------------+----------+
+    |     10 | ACCOUNTING | NEW YORK |
+    |     20 | RESEARCH   | DALLAS   |
+    |     30 | SALES      | CHICAGO  |
+    |     40 | OPERATIONS | BOSTON   |
+    +--------+------------+----------+
+    4 rows in set (0.00 sec)
+
+    mysql> insert into dept1 select * from dept;
+    Query OK, 4 rows affected (0.00 sec)
+    Records: 4  Duplicates: 0  Warnings: 0
+
+    把后面的查询结果当成数据插到表里
+    mysql> select * from dept1;
+    +--------+------------+----------+
+    | DEPTNO | DNAME      | LOC      |
+    +--------+------------+----------+
+    |     10 | ACCOUNTING | NEW YORK |
+    |     20 | RESEARCH   | DALLAS   |
+    |     30 | SALES      | CHICAGO  |
+    |     40 | OPERATIONS | BOSTON   |
+    |     10 | ACCOUNTING | NEW YORK |
+    |     20 | RESEARCH   | DALLAS   |
+    |     30 | SALES      | CHICAGO  |
+    |     40 | OPERATIONS | BOSTON   |
+    +--------+------------+----------+
+
+修改数据
+    update
+
+    语法
+        update 表名 set 字段名1=值1，字段名2=值2.。。。。。where 条件；
+   【注意】没有条件整张表全部更新
+
+    案例：
+        将部门10的location修改为shanghai，部门名称修改为hr
+        mysql> update dept1 set dname='hr',loc='shangahi' where deptno=10;
+        mysql> select * from dept1;
+        +--------+------------+----------+
+        | DEPTNO | DNAME      | LOC      |
+        +--------+------------+----------+
+        |     10 | hr         | shangahi |
+        |     20 | RESEARCH   | DALLAS   |
+        |     30 | SALES      | CHICAGO  |
+        |     40 | OPERATIONS | BOSTON   |
+        |     10 | hr         | shangahi |
+        |     20 | RESEARCH   | DALLAS   |
+        |     30 | SALES      | CHICAGO  |
+        |     40 | OPERATIONS | BOSTON   |
+        +--------+------------+----------+
+
+删除数据
+    delete from 表名 where 条件
+    【没有条件全部删除】
+
+    删除10部门数据
+        mysql> delete from dept1 where deptno=10;
+        Query OK, 2 rows affected (0.01 sec)
+
+        mysql> select * from dept1;
+        +--------+------------+---------+
+        | DEPTNO | DNAME      | LOC     |
+        +--------+------------+---------+
+        |     20 | RESEARCH   | DALLAS  |
+        |     30 | SALES      | CHICAGO |
+        |     40 | OPERATIONS | BOSTON  |
+        |     20 | RESEARCH   | DALLAS  |
+        |     30 | SALES      | CHICAGO |
+        |     40 | OPERATIONS | BOSTON  |
+        +--------+------------+---------+
+
+    删除所有记录
+        mysql> delete from dept1;
+        Query OK, 6 rows affected (0.01 sec)
+
+        mysql> select * from dept1;
+        Empty set (0.00 sec)
+
+    删除大表
+        delete慢，delete没有释放数据的真实存储空间（回滚还能回来）
+        mysql> select * from emp1;
+        +-------+--------+-----------+------+------------+---------+---------+--------+
+        | EMPNO | ENAME  | JOB       | MGR  | HIREDATE   | SAL     | COMM    | DEPTNO |
+        +-------+--------+-----------+------+------------+---------+---------+--------+
+        |  7369 | SMITH  | CLERK     | 7902 | 1980-12-17 |  800.00 |    NULL |     20 |
+        |  7499 | ALLEN  | SALESMAN  | 7698 | 1981-02-20 | 1600.00 |  300.00 |     30 |
+        |  7521 | WARD   | SALESMAN  | 7698 | 1981-02-22 | 1250.00 |  500.00 |     30 |
+        |  7566 | JONES  | MANAGER   | 7839 | 1981-04-02 | 2975.00 |    NULL |     20 |
+        |  7654 | MARTIN | SALESMAN  | 7698 | 1981-09-28 | 1250.00 | 1400.00 |     30 |
+        |  7698 | BLAKE  | MANAGER   | 7839 | 1981-05-01 | 2850.00 |    NULL |     30 |
+        |  7782 | CLARK  | MANAGER   | 7839 | 1981-06-09 | 2450.00 |    NULL |     10 |
+        |  7788 | SCOTT  | ANALYST   | 7566 | 1987-04-19 | 3000.00 |    NULL |     20 |
+        |  7839 | KING   | PRESIDENT | NULL | 1981-11-17 | 5000.00 |    NULL |     10 |
+        |  7844 | TURNER | SALESMAN  | 7698 | 1981-09-08 | 1500.00 |    0.00 |     30 |
+        |  7876 | ADAMS  | CLERK     | 7788 | 1987-05-23 | 1100.00 |    NULL |     20 |
+        |  7900 | JAMES  | CLERK     | 7698 | 1981-12-03 |  950.00 |    NULL |     30 |
+        |  7902 | FORD   | ANALYST   | 7566 | 1981-12-03 | 3000.00 |    NULL |     20 |
+        |  7934 | MILLER | CLERK     | 7782 | 1982-01-23 | 1300.00 |    NULL |     10 |
+        +-------+--------+-----------+------+------------+---------+---------+--------+
+        14 rows in set (0.01 sec)
+
+        mysql> truncate table emp1;
+        Query OK, 0 rows affected (0.02 sec)
+
+        mysql> select * from emp1;
+        Empty set (0.00 sec)
+        【必须再三确认能否删】
+        【表截断不可回滚，永久丢失】
+
+【小结】
+    DQL（select） DML（insert delete update）DDL（create drop alter）
+
+表结构的修改
+    navicat工具（实际开发中很少遇到）
+
+CRUD boy
+create retrieve（检索） update delete
