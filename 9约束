@@ -1,0 +1,99 @@
+约束
+    在创建表的时候，可以给表的字段添加相应的约束，
+    约束的目的是为了保证表中数据的合法性，有效性和完整性
+
+常见的约束
+    非空约束（not null）
+    唯一约束（unique）
+    主键约束（primary key）约束的字段既不能为null也不能为重复 （PK）
+    外键约束（foreign key）
+    检查约束（check）Oracle有，mysql没有
+
+    非空约束
+        drop table if exists t_user;
+        create table t_user(
+            id int,
+            username varchar(255) not null,
+            password varchar(255)
+        )
+        mysql> insert into t_user(id,password) values(1,'123');
+        ERROR 1364 (HY000): Field 'username' doesn't have a default value
+
+        mysql> insert into t_user(id,username,password) values(1,'zhangsan','123');
+        Query OK, 1 row affected (0.00 sec)
+
+        mysql> select * from t_user;
+        +------+----------+----------+
+        | id   | username | password |
+        +------+----------+----------+
+        |    1 | zhangsan | 123      |
+        +------+----------+----------+
+
+    唯一性约束（unique）
+        修饰的字段具有唯一性但可以为空（多个null不是重复，因为null不是值）
+        drop table if exists t_user;
+        create table t_user(
+            id int,
+            username varchar(255) unique
+        )
+        mysql> insert into t_user values(1,'zhansgan');
+        Query OK, 1 row affected (0.02 sec)
+
+        mysql> insert into t_user values(2,'zhansgan');
+        ERROR 1062 (23000): Duplicate entry 'zhansgan' for key 'username'
+        mysql> insert into t_user(id) values(3);
+        Query OK, 1 row affected (0.02 sec)
+
+        mysql> insert into t_user(id) values(4);
+        Query OK, 1 row affected (0.02 sec)
+
+        mysql> insert into t_user(id) values(5);
+        Query OK, 1 row affected (0.01 sec)
+        mysql> select * from t_user;
+        +------+----------+
+        | id   | username |
+        +------+----------+
+        |    1 | zhansgan |
+        |    3 | NULL     |
+        |    4 | NULL     |
+        |    5 | NULL     |
+        +------+----------+
+
+        给多个列添加unique
+            用户编号和用户名都具有唯一性
+            unique(username,userno)两个字段联合起来具有唯一性
+            create table t_user(
+                        id int,
+                        username varchar(255),
+                        userno varchar(255),
+                        unique(username,userno)//表级约束
+            )
+            mysql> insert into t_user values(1,'111','zs');
+            Query OK, 1 row affected (0.00 sec)
+
+            mysql> insert into t_user values(1,'111','zc');
+            Query OK, 1 row affected (0.00 sec)
+
+            mysql> insert into t_user values(1,'111','zc');
+            ERROR 1062 (23000): Duplicate entry '111-zc' for key 'username'
+            mysql> select * from t_user;
+            +------+----------+--------+
+            | id   | username | userno |
+            +------+----------+--------+
+            |    1 | 111      | zs     |
+            |    1 | 111      | zc     |
+            +------+----------+--------+
+
+            两个字段都具有唯一性
+            create table t_user(
+                        id int,
+                        username varchar(255) unique,//列级约束
+                        userno varchar(255) unique
+
+            )
+            mysql> insert into t_user values(1,'111','zs');
+            Query OK, 1 row affected (0.01 sec)
+
+            mysql> insert into t_user values(1,'111','zc');
+            ERROR 1062 (23000): Duplicate entry '111' for key 'username'
+p53
