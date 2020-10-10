@@ -1,0 +1,24 @@
+取得每个部门最高薪水的人员名称
+   1.取得最高薪水
+   mysql> select deptno,max(sal) from EMP group by deptno;
+   +--------+----------+
+   | deptno | max(sal) |
+   +--------+----------+
+   |     20 |  3000.00 |
+   |     30 |  2850.00 |
+   |     10 |  5000.00 |
+   +--------+----------+
+    2.以上结果作为临时表t，t和emp连接
+        条件deptno相同sal相同
+    mysql> select e.ename,t.*
+    from (select deptno,max(sal) as ms from EMP group by deptno) t
+    join EMP e
+    on t.deptno=e.deptno and t.ms=e.sal;
+    +-------+--------+---------+
+    | ename | deptno | ms      |
+    +-------+--------+---------+
+    | BLAKE |     30 | 2850.00 |
+    | SCOTT |     20 | 3000.00 |
+    | KING  |     10 | 5000.00 |
+    | FORD  |     20 | 3000.00 |
+    +-------+--------+---------+

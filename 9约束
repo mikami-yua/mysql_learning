@@ -97,3 +97,207 @@
             mysql> insert into t_user values(1,'111','zc');
             ERROR 1062 (23000): Duplicate entry '111' for key 'username'
 p53
+Linux进入MySQL的命令
+sudo service mysql start
+mysql -uroot -p
+
+主键约束
+    怎么添加主键约束：
+        create table t_user(
+                    id int primary key,//列级约束
+                    username varchar(255),
+                    email varchar(255)
+        )
+        mysql> insert into t_user(id,username,email) values(1,'zs','zs@123.com');
+        Query OK, 1 row affected (0.13 sec)
+
+        mysql> insert into t_user(id,username,email) values(2,'ls','ls@123.com');
+        Query OK, 1 row affected (0.07 sec)
+
+        mysql> insert into t_user(id,username,email) values(3,'ww','ww@123.com');
+        Query OK, 1 row affected (0.07 sec)
+
+        mysql> select * from t_user;
+        +----+----------+------------+
+        | id | username | email      |
+        +----+----------+------------+
+        |  1 | zs       | zs@123.com |
+        |  2 | ls       | ls@123.com |
+        |  3 | ww       | ww@123.com |
+        +----+----------+------------+
+        mysql> insert into t_user(id,username,email) values(1,'jk','jk@123.com');
+        ERROR 1062 (23000): Duplicate entry '1' for key 't_user.PRIMARY'
+        mysql> insert into t_user(id,username,email) values('jk','jk@123.com');
+        ERROR 1136 (21S01): Column count doesn't match value count at row 1
+
+        主键不能为空，也不能重复
+
+    主键相关的术语
+        主键约束 primary key
+        主键字段
+        主键值
+
+    主键的作用
+        表达设计三范式，第一要求任何一张表都应该有主键。
+        主键是一行记录的唯一标识
+
+    主键分类
+        根据主键的字段数量分：
+            单一主键
+            复合主键（不建议使用，违背三范式）
+        主键的性质
+            自然主键
+                主键值是一个与业务无关的自然数【建议】
+            业务主键
+                主键值和系统业务挂钩：身份证号作为主键，银行卡号作为主键
+                最好不用与业务挂钩的作为主键，业务可能会改变。
+
+        【一张表达主键约束只能有一个】
+
+    使用表级约束定义主键
+        drop table if exists t_user;
+        create table t_user(
+            id int,
+            username varchar(255),
+            primary key(id)
+        );
+        insert into t_user(id,username) values(1,'ls');
+        insert into t_user(id,username) values(2,'zs');
+        insert into t_user(id,username) values(3,'ww');
+        insert into t_user(id,username) values(4,'zl');
+        insert into t_user(id,username) values(5,'hzh');
+        select * from t_user;
+        +----+----------+
+        | id | username |
+        +----+----------+
+        |  1 | ls       |
+        |  2 | zs       |
+        |  3 | ww       |
+        |  4 | zl       |
+        |  5 | hzh      |
+        +----+----------+
+
+    mysql提供主键值自增
+        drop table if exists t_user;
+        create table t_user(
+            id int primary key auto_increment,
+            //id字段自动维护一个自增的数字
+            username varchar(255)
+        );
+        insert into t_user(username) values('ls');
+        insert into t_user(username) values('zs');
+        insert into t_user(username) values('ww');
+        insert into t_user(username) values('zl');
+        insert into t_user(username) values('hzh');
+        select * from t_user;
+        +----+----------+
+        | id | username |
+        +----+----------+
+        |  1 | ls       |
+        |  2 | zs       |
+        |  3 | ww       |
+        |  4 | zl       |
+        |  5 | hzh      |
+        +----+----------+
+        Oracle里也有自增机制：序列
+
+外键约束
+    相关术语：
+        外键约束 foreign key
+        外键字段
+        外键值
+
+    业务背景：
+        设计数据库表，维护学生和班级的信息
+
+        方案1：一张表存储所有数据
+        可行但冗余
+
+        方案2：两张表
+        t_class
+            cno(pk)  cname
+
+        t_student
+            sno(pk)  sname   classno(该字段添加外键约束fk)
+
+            cno字段没有外键约束，可以随便写
+            cno有外键约束，这里的值必须来着于某个字段
+
+            t_student中的classno字段引用子t_class中的cno字段，此时t_student
+            表叫做子表，t_class表叫做父表
+
+        操作顺序
+            【删表的时候先删子表再删父表（可能子表还用着呢）】
+            【创建和插入的时候，先添加父表再添加子表】
+
+        sql语句
+            drop table if exists t_student;
+            drop table if exists t_class;
+
+            create table t_class(
+                cno int primary key,
+                cname varchar(255)
+            );
+            create table t_student(
+                sno int,
+                sname varchar(255),
+                classno int，
+                primary key(sno)，
+                foreign key(classno) references t_class(cno)
+
+            );
+
+            insert into t_class values(301,'gaosan1');
+            insert into t_class values(302,'gaosan2');
+            insert into t_class values(303,'gaosan3');
+
+            insert into t_student values(1,'zhangsan',301);
+            insert into t_student values(2,'lisi',301);
+            insert into t_student values(3,'wangwu',303);
+            insert into t_student values(4,'zhangliu',301);
+            insert into t_student values(5,'hongzehai',302);
+            insert into t_student values(6,'zhangmeng',302);
+
+            select * from t_class;
+            select * from t_student;
+            +-----+---------+
+            | cno | cname   |
+            +-----+---------+
+            | 301 | gaosan1 |
+            | 302 | gaosan2 |
+            | 303 | gaosan3 |
+            +-----+---------+
+            3 rows in set (0.00 sec)
+
+            +-----+-----------+---------+
+            | sno | sname     | classno |
+            +-----+-----------+---------+
+            |   1 | zhangsan  |     301 |
+            |   2 | lisi      |     301 |
+            |   3 | wangwu    |     303 |
+            |   4 | zhangliu  |     301 |
+            |   5 | hongzehai |     302 |
+            |   6 | zhangmeng |     302 |
+            +-----+-----------+---------+
+
+    外键值能否为null------可以
+        mysql> insert into t_student(sno,sname) values(7,'zhangsasa');
+        Query OK, 1 row affected (0.07 sec)
+
+        mysql> select * from t_student;
+        +-----+-----------+---------+
+        | sno | sname     | classno |
+        +-----+-----------+---------+
+        |   1 | zhangsan  |     301 |
+        |   2 | lisi      |     301 |
+        |   3 | wangwu    |     303 |
+        |   4 | zhangliu  |     301 |
+        |   5 | hongzehai |     302 |
+        |   6 | zhangmeng |     302 |
+        |   7 | zhangsasa |    NULL |
+        +-----+-----------+---------+
+
+    外键不一定需要是另一个表达主键，但别的字段必须有唯一性（一般情况下都是引用主键）
+
+
+
