@@ -4,3 +4,292 @@ Transaction
         ps：银行账户转账A向B转账，需要两条update语句
         两个update需要同事成功或同时失败，不允许一个成功一个失败【使用事务机制实现】
 p62 06.05
+和事务相关的只有DML语句（insert delete update）
+    这三个语句和数据表中的数据相关
+    事务的存在是为了保证数据的完整性，安全性
+
+    所有业务都能用一条DML语句解决，就不需要事务机制了。
+        通常一个事需要多条DML语句
+
+事务的原理
+    一个业务需要先执行insert，再执行一条update，最后执行delete：
+        1.开启事务机制
+        2.执行insert（执行成功之后，把这个执行记录到数据库的操作历史中，并不会向文件
+        中保存一条数据，不会真正的修改硬盘上的数据）
+        3.执行update语句（执行成功之后，把这个执行记录到数据库的操作历史中，并不会向文件
+        中保存一条数据，不会真正的修改硬盘上的数据）
+        4.执行delete。。。。。。。
+        5.提交事务或者回滚事务
+
+        提交就会真的改变硬盘上的数据，并清空历史操作
+        回滚也会清空历史操作，但是不会写硬盘
+
+TCL只有两条
+    提交commit
+    回滚rollback
+
+    savepoint可以回滚到固定语句
+
+事务的特性
+    A：原子性-----》事务是最小的工作单元，不可再分
+    C：一致性-----》事务必须保证多条DML语句同时成功或失败
+    I：隔离性-----》事务A与事务B具有隔离
+    D: 持久性-----》最终数据必须持久化到硬盘文件，事务才算成功结束
+
+事务之间的隔离性
+    隔离级别4个：
+        1.读未提交（read uncommitted）
+            对方事务还未提交，当前事务可以读取到对方未提交的数据
+            存在脏读（dirty read）：读到的数据不再硬盘中（不稳定的数据）
+        2.读提交（read commit）
+            对方提交后的数据，当前事务可以读到
+            存在问题：不可重复读。
+                对方一提交就能读到，如果多次提交，当前事务读到的内容都不同
+            解决了脏读
+        3.可重复读（repeatable read）
+           当前事务未结束，无论对方怎么提交，读到的结果都相同
+           解决了不可重复读
+           存在的问题：读取到的数据是幻象（对方可能已经把数据都删了）
+        4.序列化读/串行化读
+            所有事务串行
+            存在问题：效率低
+
+        Oracle默认2级
+        MySQL默认3级
+
+演示事务
+    MySQL默认自动提交
+        执行任意一条MySQL语句提交一次
+    关闭自动提交
+        start transaction;
+
+    drop table if exists t_user;
+    create table t_user(
+        id int primary key auto_increment,
+        username varchar(255)
+    );
+    mysql> rollback;
+    Query OK, 0 rows affected (0.00 sec)
+    自动提交，rollback没用
+    mysql> select *from t_user;
+    +----+----------+
+    | id | username |
+    +----+----------+
+    |  1 | zs       |
+    +----+----------+
+
+    mysql> start transaction;
+    Query OK, 0 rows affected (0.00 sec)
+
+    mysql> insert into t_user(username) values('lisi');
+    Query OK, 1 row affected (0.00 sec)
+
+    mysql> select *from t_user;
+    +----+----------+
+    | id | username |
+    +----+----------+
+    |  1 | zs       |
+    |  2 | lisi     |
+    +----+----------+
+    2 rows in set (0.01 sec)
+
+    mysql> insert into t_user(username) values('wangwu');
+    Query OK, 1 row affected (0.01 sec)
+
+    mysql> select *from t_user;
+    +----+----------+
+    | id | username |
+    +----+----------+
+    |  1 | zs       |
+    |  2 | lisi     |
+    |  3 | wangwu   |
+    +----+----------+
+    3 rows in set (0.00 sec)
+
+    mysql> rollback;
+    Query OK, 0 rows affected (0.05 sec)
+
+    mysql> select *from t_user;
+    +----+----------+
+    | id | username |
+    +----+----------+
+    |  1 | zs       |
+    +----+----------+
+
+    上一个事务rollback已经结束，需要再次开始一个新的事务
+    mysql> start transaction;
+    Query OK, 0 rows affected (0.00 sec)
+
+    mysql> insert into t_user(username) values('wangwu');
+    Query OK, 1 row affected (0.00 sec)
+
+    mysql> insert into t_user(username) values('lisi');
+    Query OK, 1 row affected (0.00 sec)
+
+    mysql> commit;
+    Query OK, 0 rows affected (0.08 sec)
+
+    mysql> select *from t_user;
+    +----+----------+
+    | id | username |
+    +----+----------+
+    |  1 | zs       |
+    |  4 | wangwu   |
+    |  5 | lisi     |
+    +----+----------+
+
+    mysql> rollback;上次commit数据已经持久化到硬盘上
+    rollback;
+    ^C
+    mysql> select *from t_user;
+    +----+----------+
+    | id | username |
+    +----+----------+
+    |  1 | zs       |
+    |  4 | wangwu   |
+    |  5 | lisi     |
+    +----+----------+
+
+演示读未提交
+    设置隔离级别
+        set global transaction isolation level read uncommitted;
+    查看隔离级别
+        select @@global.tx_isolation;（version 8以前）
+        mysql> select @@global.transaction_isolation;（version 8）
+        +--------------------------------+
+        | @@global.transaction_isolation |
+        +--------------------------------+
+        | READ-UNCOMMITTED               |
+        +--------------------------------+
+
+    终端1：
+        mysql> insert into t_user(username) values('smith');
+        Query OK, 1 row affected (0.00 sec)
+
+        未提交
+    终端2：
+        mysql> select * from t_user;
+        +----+----------+
+        | id | username |
+        +----+----------+
+        |  1 | zs       |
+        |  4 | wangwu   |
+        |  5 | lisi     |
+        |  6 | smith    |
+        +----+----------+
+
+        读到了未提交的数据
+
+演示读已提交
+    mysql> set global transaction isolation level read committed;
+    mysql> select @@global.transaction_isolation;
+    +--------------------------------+
+    | @@global.transaction_isolation |
+    +--------------------------------+
+    | READ-COMMITTED                 |
+    +--------------------------------+
+
+    终端1：
+        mysql> start transaction;
+        mysql> insert into t_user(username) values('test1');
+        Query OK, 1 row affected (0.00 sec)
+
+    终端2：
+        mysql> select * from t_user;
+        +----+----------+
+        | id | username |
+        +----+----------+
+        |  1 | zs       |
+        |  4 | wangwu   |
+        |  5 | lisi     |
+        +----+----------+
+        未提交读不到
+
+        终端1commit
+        mysql> select * from t_user;
+        +----+----------+
+        | id | username |
+        +----+----------+
+        |  1 | zs       |
+        |  4 | wangwu   |
+        |  5 | lisi     |
+        |  7 | test1    |
+        +----+----------+
+
+演示可重复读repeatable read
+    mysql> set global transaction isolation level repeatable read;
+    mysql> select @@global.transaction_isolation;
+    +--------------------------------+
+    | @@global.transaction_isolation |
+    +--------------------------------+
+    | REPEATABLE-READ                |
+    +--------------------------------+
+
+    终端1：
+        mysql> start transaction;
+        Query OK, 0 rows affected (0.00 sec)
+
+        mysql> delete from t_user;
+        Query OK, 4 rows affected (0.00 sec)
+
+        mysql> commit;
+        Query OK, 0 rows affected (0.07 sec)
+
+        mysql> select *from t_user;
+        Empty set (0.00 sec)
+        已经提交没有数据了
+    终端2：
+        终端1commit之前
+        mysql> select * from t_user;
+        +----+----------+
+        | id | username |
+        +----+----------+
+        |  1 | zs       |
+        |  4 | wangwu   |
+        |  5 | lisi     |
+        |  7 | test1    |
+        +----+----------+
+
+        终端1commit之后
+        mysql> select *from t_user;
+        +----+----------+
+        | id | username |
+        +----+----------+
+        |  1 | zs       |
+        |  4 | wangwu   |
+        |  5 | lisi     |
+        |  7 | test1    |
+        +----+----------+
+
+演示序列化读
+    mysql> set global transaction isolation level serializable;
+    mysql> select @@global.transaction_isolation;
+    +--------------------------------+
+    | @@global.transaction_isolation |
+    +--------------------------------+
+    | SERIALIZABLE                   |
+    +--------------------------------+
+    终端1：
+        mysql> start transaction;
+        Query OK, 0 rows affected (0.00 sec)
+
+        mysql> select * from t_user;
+        Empty set (0.00 sec)
+
+        mysql> insert into t_user(username) values('test1');
+        Query OK, 1 row affected (0.00 sec)
+        插入一个值
+    终端2：
+        mysql> select * from t_user;
+        ERROR 1205 (HY000): Lock wait timeout exceeded; try restarting transaction
+        mysql> select * from t_user;
+        处于等待状态
+        终端1输入commit
+        终端2马上更新
+        +----+----------+
+        | id | username |
+        +----+----------+
+        |  8 | test1    |
+        +----+----------+
+
+
