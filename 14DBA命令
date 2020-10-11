@@ -1,0 +1,11 @@
+数据备份
+    数据导出
+        在命令窗口执行：mysqldump learningtext>D:...\learningtest.sql -uroot -p
+            输出到D盘。。。
+        Linux：mysqldump -uroot -p learningtest>learningtest.sql导出到桌面了
+        导出表 mysqldump -uroot -p learningtest EMP>EMP.sql
+
+    数据导入
+        create datebase xxxxx;
+        use xxxxx;
+        source 把文件拽过来(去掉‘’);

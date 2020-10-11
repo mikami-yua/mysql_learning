@@ -18,6 +18,123 @@
 
 什么时候考虑给字段添加索引
     1.数据量庞大
-    2.该字段很少DML操作
+    2.该字段很少DML操作(字段操作索引也需要维护)
     3.该字段经常出现在where字句中
 p71 12.03
+主键和具有unique约束的字段自动添加索引
+    尽量根据主键索引
+
+    查看sql语句的执行计划
+    mysql> explain select ename,sal from EMP where sal=5000;
+    +----+-------------+-------+------------+------+---------------+------+---------+------+------+----------+-------------+
+    | id | select_type | table | partitions | type | possible_keys | key  | key_len | ref  | rows | filtered | Extra       |
+    +----+-------------+-------+------------+------+---------------+------+---------+------+------+----------+-------------+
+    |  1 | SIMPLE      | EMP   | NULL       | ALL  | NULL          | NULL | NULL    | NULL |   14 |    10.00 | Using where |
+    +----+-------------+-------+------------+------+---------------+------+---------+------+------+----------+-------------+
+    type all 全表扫描
+    rows 扫了14行记录
+
+    给sal添加索引
+        create index emp_sal_index on EMP(sal);
+
+        mysql> create index emp_sal_index on EMP(sal);
+        Query OK, 0 rows affected (0.75 sec)
+        Records: 0  Duplicates: 0  Warnings: 0
+
+        mysql> explain select ename,sal from EMP where sal=5000;
+        +----+-------------+-------+------------+------+---------------+---------------+---------+-------+------+----------+-------+
+        | id | select_type | table | partitions | type | possible_keys | key           | key_len | ref   | rows | filtered | Extra |
+        +----+-------------+-------+------------+------+---------------+---------------+---------+-------+------+----------+-------+
+        |  1 | SIMPLE      | EMP   | NULL       | ref  | emp_sal_index | emp_sal_index | 9       | const |    1 |   100.00 | NULL  |
+        +----+-------------+-------+------------+------+---------------+---------------+---------+-------+------+----------+-------+
+        type ref
+        rows 1 扫描1行（底层使用B树）
+
+    删除索引
+        mysql> drop index emp_sal_index on EMP;
+        Query OK, 0 rows affected (0.20 sec)
+        Records: 0  Duplicates: 0  Warnings: 0
+
+        mysql> explain select ename,sal from EMP where sal=5000;
+        +----+-------------+-------+------------+------+---------------+------+---------+------+------+----------+-------------+
+        | id | select_type | table | partitions | type | possible_keys | key  | key_len | ref  | rows | filtered | Extra       |
+        +----+-------------+-------+------------+------+---------------+------+---------+------+------+----------+-------------+
+        |  1 | SIMPLE      | EMP   | NULL       | ALL  | NULL          | NULL | NULL    | NULL |   14 |    10.00 | Using where |
+        +----+-------------+-------+------------+------+---------------+------+---------+------+------+----------+-------------+
+
+索引的实现原理
+    底层数据结构B+树
+
+    实现原理
+        通过B tree缩小了扫描范围，底层索引进行了排序分区，索引会携带数据在表中的
+        物理地址，最终通过检索到数据之后获得关联的屋里地址，通过物理地址定位表中的数据
+
+
+        mysql> select ename from EMP;
+        +--------+
+        | ename  |
+        +--------+
+        | SMITH  |
+        | ALLEN  |
+        | WARD   |
+        | JONES  |
+        | MARTIN |
+        | BLAKE  |
+        | CLARK  |
+        | SCOTT  |
+        | KING   |
+        | TURNER |
+        | ADAMS  |
+        | JAMES  |
+        | FORD   |
+        | MILLER |
+        +--------+
+        有sql select ename from emp where ename='smith';
+        1.ename上无索引时
+            全表扫描
+        2.添加索引
+            reate index emp_ename_index on EMP(ename);
+            这句话一执行，根据存储引擎的不同，会在内存或硬盘生成索引，
+            索引（假如）emp_ename_index对象
+            +--------+
+            | ename  |
+            +--------+
+            | ADAMS  |
+            | ALLEN  |
+            | BLAKE  |
+            | CLARK  |
+            | FORD   |
+            | JAMES  |
+            | JONES  |
+            | KING   |
+            | MARTIN |
+            | MILLER |
+            | SCOTT  |
+            | SMITH  |
+            | TURNER |
+            | WARD   |
+            +--------+
+            索引会自动排序
+            索引还会分区
+            select ename from emp where ename='smith';
+            1.条件是ename字段，查看ename字段有没有对应的索引，找到了ename字段对应
+            的索引对象emp_ename_index对象
+            2.通过索引检索
+                ename=smith，先定位到s区（根据第一个字母）
+                再定位到m区（第二个字母）
+
+                缩短了扫描的数量，很快定位到smith了
+
+                每个字段都有物理地址（Oracle中叫rowid）比如smith有物理地址0x3
+            3.原sql会变为select ename from emp where 物理地址=0x3;
+                这条sql不再走表，而是直接在硬盘上定位
+
+索引的分类
+    单一索引：单个字段
+    复合索引：多个字段联合
+    主键索引：主键上自动添加索引
+    唯一索引：在unique字段自动添加索引
+
+索引的失效
+    select ename from emp where ename like '%A%';
+    模糊查询，第一个通配符使用%，这个时候索引是失效的
