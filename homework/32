@@ -1,0 +1,17 @@
+求出员工领导的薪水超过3000的员工名和领导名
+mysql> select ename from EMP where sal>3000;
++-------+
+| ename |
++-------+
+| KING  |
++-------+
+mysql> select a.ename,b.ename from EMP a join EMP b on a.mgr=b.empno where b.sal>3000;
++-------+-------+
+| ename | ename |
++-------+-------+
+| JONES | KING  |
+| BLAKE | KING  |
+| CLARK | KING  |
++-------+-------+
+
+

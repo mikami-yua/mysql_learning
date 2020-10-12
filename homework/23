@@ -1,0 +1,16 @@
+列出与scott从事相同工作的所有员工及部门名称
+1.scott的工作
+mysql> select job from EMP where ename='scott';
++---------+
+| job     |
++---------+
+| ANALYST |
++---------+
+2.
+mysql> select e.ename,d.dname from EMP e join (select job from EMP where ename='scott') t on e.job=t.job join DEPT d on e.deptno=d.deptno;
++-------+----------+
+| ename | dname    |
++-------+----------+
+| SCOTT | RESEARCH |
+| FORD  | RESEARCH |
++-------+----------+

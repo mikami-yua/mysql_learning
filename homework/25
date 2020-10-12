@@ -1,0 +1,19 @@
+列出薪资高于在部门30工作的所有员工的薪资的姓名和薪资，部门名
+1.部门30的最高薪资
+mysql> select max(sal) as maxsal from EMP where deptno=30;
++---------+
+| maxsal  |
++---------+
+| 2850.00 |
++---------+
+2.
+mysql> select e.ename,d.dname,e.sal from EMP e join DEPT d on e.deptno=d.deptno where e.sal>(select max(sal) as maxsal from EMP where deptno=30);
++-------+------------+---------+
+| ename | dname      | sal     |
++-------+------------+---------+
+| JONES | RESEARCH   | 2975.00 |
+| SCOTT | RESEARCH   | 3000.00 |
+| KING  | ACCOUNTING | 5000.00 |
+| FORD  | RESEARCH   | 3000.00 |
++-------+------------+---------+
+

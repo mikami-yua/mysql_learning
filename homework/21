@@ -1,1 +1,19 @@
 p90
+列出在部门sales工作的员工姓名
+mysql> select deptno from DEPT where dname='sales';
++--------+
+| deptno |
++--------+
+|     30 |
++--------+
+mysql> select e.ename,e.job from EMP e join (select deptno from DEPT where dname='sales') t on t.deptno=e.deptno;
++--------+----------+
+| ename  | job      |
++--------+----------+
+| ALLEN  | SALESMAN |
+| WARD   | SALESMAN |
+| MARTIN | SALESMAN |
+| BLAKE  | MANAGER  |
+| TURNER | SALESMAN |
+| JAMES  | CLERK    |
++--------+----------+

@@ -1,0 +1,19 @@
+求出部门名称中带有s字符的部门员工的工资合计，部门人数
+1.带有s的
+mysql> select deptno from DEPT where dname like '%s%';
++--------+
+| deptno |
++--------+
+|     20 |
+|     30 |
+|     40 |
++--------+
+
+mysql> select count(e.ename),sum(e.sal) from EMP e right join DEPT d on e.deptno=d.deptno where d.dname like '%s%' group by e.deptno;
++----------------+------------+
+| count(e.ename) | sum(e.sal) |
++----------------+------------+
+|              5 |   10875.00 |
+|              6 |    9400.00 |
+|              0 |       NULL |
++----------------+------------+

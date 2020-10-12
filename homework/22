@@ -1,0 +1,34 @@
+列出薪资高于公司平均薪资的所有员工，所在部门，上级领导和薪资
+1.平均薪资
+mysql> select avg(sal) as avgsal from EMP ;
++-------------+
+| avgsal      |
++-------------+
+| 2073.214286 |
++-------------+
+2.求出相应编号
+mysql> select e.ename,e.deptno,e.mgr,e.sal from EMP e join (select avg(sal) as avgsal from EMP) t on
+e.sal>t.avgsal;
++-------+--------+------+---------+
+| ename | deptno | mgr  | sal     |
++-------+--------+------+---------+
+| JONES |     20 | 7839 | 2975.00 |
+| BLAKE |     30 | 7839 | 2850.00 |
+| CLARK |     10 | 7839 | 2450.00 |
+| SCOTT |     20 | 7566 | 3000.00 |
+| KING  |     10 | NULL | 5000.00 |
+| FORD  |     20 | 7566 | 3000.00 |
++-------+--------+------+---------+
+3.编号转换为名字
+mysql> select e.ename,d.dname,a.ename,e.sal from EMP e join DEPT d on d.deptno=e.deptno join (select
+avg(sal) as avgsal from EMP) t on e.sal>t.avgsal left join EMP a on e.mgr=a.empno;
++-------+------------+-------+---------+
+| ename | dname      | ename | sal     |
++-------+------------+-------+---------+
+| JONES | RESEARCH   | KING  | 2975.00 |
+| BLAKE | SALES      | KING  | 2850.00 |
+| CLARK | ACCOUNTING | KING  | 2450.00 |
+| SCOTT | RESEARCH   | JONES | 3000.00 |
+| KING  | ACCOUNTING | NULL  | 5000.00 |
+| FORD  | RESEARCH   | JONES | 3000.00 |
++-------+------------+-------+---------+

@@ -1,0 +1,16 @@
+列出薪资等于部门30中员工薪资的其他员工的姓名和薪资
+1.30部门的薪资
+mysql> select distinct  sal from EMP where deptno=30;
++---------+
+| sal     |
++---------+
+| 1600.00 |
+| 1250.00 |
+| 2850.00 |
+| 1500.00 |
+|  950.00 |
++---------+
+2.
+mysql> select ename,sal from EMP where sal in (select distinct  sal from EMP where deptno=30) and deptno <> 30;
+Empty set (0.01 sec)
+

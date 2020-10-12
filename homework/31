@@ -1,0 +1,20 @@
+列出所有员工的年工资，按照年薪从低到高排
+mysql> select ename,(sal+ifnull(comm,0))*12 as yearmoney from EMP order by yearmoney;
++--------+-----------+
+| ename  | yearmoney |
++--------+-----------+
+| SMITH  |   9600.00 |
+| JAMES  |  11400.00 |
+| ADAMS  |  13200.00 |
+| MILLER |  15600.00 |
+| TURNER |  18000.00 |
+| WARD   |  21000.00 |
+| ALLEN  |  22800.00 |
+| CLARK  |  29400.00 |
+| MARTIN |  31800.00 |
+| BLAKE  |  34200.00 |
+| JONES  |  35700.00 |
+| SCOTT  |  36000.00 |
+| FORD   |  36000.00 |
+| KING   |  60000.00 |
++--------+-----------+

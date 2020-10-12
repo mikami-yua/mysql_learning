@@ -1,0 +1,18 @@
+列出各个部门manager的最低薪资
+mysql> select ename,sal from EMP where job='manager';
++-------+---------+
+| ename | sal     |
++-------+---------+
+| JONES | 2975.00 |
+| BLAKE | 2850.00 |
+| CLARK | 2450.00 |
++-------+---------+
+
+mysql> select deptno,min(sal) from EMP where job='manager' group by deptno;
++--------+----------+
+| deptno | min(sal) |
++--------+----------+
+|     20 |  2975.00 |
+|     30 |  2850.00 |
+|     10 |  2450.00 |
++--------+----------+

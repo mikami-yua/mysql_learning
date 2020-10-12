@@ -1,0 +1,23 @@
+各种工作的最低工资，以及从事此工作的雇员姓名
+mysql> select job,min(sal) from EMP group by job;
++-----------+----------+
+| job       | min(sal) |
++-----------+----------+
+| CLERK     |   800.00 |
+| SALESMAN  |  1250.00 |
+| MANAGER   |  2450.00 |
+| ANALYST   |  3000.00 |
+| PRESIDENT |  5000.00 |
++-----------+----------+
+mysql> select e.ename,t.job,t.minsal,e.sal from EMP e join (select job,min(sal) as minsal from EMP group by job) t on e.sal=t.minsal;
++--------+-----------+---------+---------+
+| ename  | job       | minsal  | sal     |
++--------+-----------+---------+---------+
+| SMITH  | CLERK     |  800.00 |  800.00 |
+| WARD   | SALESMAN  | 1250.00 | 1250.00 |
+| MARTIN | SALESMAN  | 1250.00 | 1250.00 |
+| CLARK  | MANAGER   | 2450.00 | 2450.00 |
+| SCOTT  | ANALYST   | 3000.00 | 3000.00 |
+| KING   | PRESIDENT | 5000.00 | 5000.00 |
+| FORD   | ANALYST   | 3000.00 | 3000.00 |
++--------+-----------+---------+---------+

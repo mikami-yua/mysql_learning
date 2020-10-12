@@ -1,0 +1,11 @@
+列出所有部门的详细信息和人数
+mysql> select d.*,t.cn from DEPT d left join (select deptno,count(*) as cn from EMP group by deptno)
+t on d.deptno=t.deptno;
++--------+------------+----------+------+
+| DEPTNO | DNAME      | LOC      | cn   |
++--------+------------+----------+------+
+|     10 | ACCOUNTING | NEW YORK |    3 |
+|     20 | RESEARCH   | DALLAS   |    5 |
+|     30 | SALES      | CHICAGO  |    6 |
+|     40 | OPERATIONS | BOSTON   | NULL |
++--------+------------+----------+------+

@@ -1,0 +1,45 @@
+给任职日期超过30年底员工加薪10%
+1.任职超过30year
+mysql> select ename from EMP where timestampdiff(year,hiredate,now())>30;
++--------+
+| ename  |
++--------+
+| SMITH  |
+| ALLEN  |
+| WARD   |
+| JONES  |
+| MARTIN |
+| BLAKE  |
+| CLARK  |
+| SCOTT  |
+| KING   |
+| TURNER |
+| ADAMS  |
+| JAMES  |
+| FORD   |
+| MILLER |
++--------+
+2.加薪
+mysql> update EMP set sal=sal*1.1 where timestampdiff(year,hiredate,now())>30;
+Query OK, 14 rows affected (0.09 sec)
+Rows matched: 14  Changed: 14  Warnings: 0
+
+mysql> select sal from EMP;
++---------+
+| sal     |
++---------+
+|  880.00 |
+| 1760.00 |
+| 1375.00 |
+| 3272.50 |
+| 1375.00 |
+| 3135.00 |
+| 2695.00 |
+| 3300.00 |
+| 5500.00 |
+| 1650.00 |
+| 1210.00 |
+| 1045.00 |
+| 3300.00 |
+| 1430.00 |
++---------+
