@@ -1,0 +1,11 @@
+取得薪水最高的前5名员工
+mysql> select ename,sal from EMP order by sal desc limit 5;
++-------+---------+
+| ename | sal     |
++-------+---------+
+| KING  | 5000.00 |
+| FORD  | 3000.00 |
+| SCOTT | 3000.00 |
+| JONES | 2975.00 |
+| BLAKE | 2850.00 |
++-------+---------+

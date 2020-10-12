@@ -1,0 +1,43 @@
+取得比普通员工最高薪水还要高的领导人姓名（x？）
+1.找领导（mgr字段为空的）
+mysql> select distinct mgr from EMP;
++------+
+| mgr  |
++------+
+| 7902 |
+| 7698 |
+| 7839 |
+| 7566 |
+| NULL |
+| 7788 |
+| 7782 |
++------+
+员工编号不在上表的都是普通员工
+
+2.找出普通员工的最高薪水
+mysql> select max(sal) from EMP where empno not in (select distinct mgr from EMP);
++----------+
+| max(sal) |
++----------+
+|     NULL |
++----------+
+not in有空需要手动排除
+mysql> select max(sal) from EMP where empno not in (select distinct mgr from EMP where mgr is not NULL);
++----------+
+| max(sal) |
++----------+
+|  1600.00 |
++----------+
+
+3.找出高于1600的
+mysql> select ename,sal from EMP where sal>(select max(sal) from EMP where empno not in (select distinct mgr from EMP where mgr is not NULL));
++-------+---------+
+| ename | sal     |
++-------+---------+
+| JONES | 2975.00 |
+| BLAKE | 2850.00 |
+| CLARK | 2450.00 |
+| SCOTT | 3000.00 |
+| KING  | 5000.00 |
+| FORD  | 3000.00 |
++-------+---------+

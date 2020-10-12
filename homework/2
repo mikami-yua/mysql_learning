@@ -1,0 +1,24 @@
+p77
+那些人的薪水在平均薪水之上
+1.找出部门平均薪水
+mysql> select deptno,avg(sal) as avgsal from EMP group by deptno;
++--------+-------------+
+| deptno | avgsal      |
++--------+-------------+
+|     20 | 2175.000000 |
+|     30 | 1566.666667 |
+|     10 | 2916.666667 |
++--------+-------------+
+2.联合查找，部门编号相同
+    mysql> select t.*,e.ename,e.sal from EMP e join (select deptno,avg(sal) as avgsal from EMP group by deptno) t on e.deptno=t.deptno and e.sal>t.avgsal;
+    +--------+-------------+-------+---------+
+    | deptno | avgsal      | ename | sal     |
+    +--------+-------------+-------+---------+
+    |     30 | 1566.666667 | ALLEN | 1600.00 |
+    |     20 | 2175.000000 | JONES | 2975.00 |
+    |     30 | 1566.666667 | BLAKE | 2850.00 |
+    |     20 | 2175.000000 | SCOTT | 3000.00 |
+    |     10 | 2916.666667 | KING  | 5000.00 |
+    |     20 | 2175.000000 | FORD  | 3000.00 |
+    +--------+-------------+-------+---------+
+

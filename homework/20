@@ -1,0 +1,19 @@
+列出薪资大于1500的工作和从事次工作的所有雇员人数
+1.薪资》1500
+mysql> select job from EMP group by job having min(sal)>1500;
++-----------+
+| job       |
++-----------+
+| MANAGER   |
+| ANALYST   |
+| PRESIDENT |
++-----------+
+
+mysql> select job,count(*) from EMP group by job having min(sal)>1500;
++-----------+----------+
+| job       | count(*) |
++-----------+----------+
+| MANAGER   |        3 |
+| ANALYST   |        2 |
+| PRESIDENT |        1 |
++-----------+----------+

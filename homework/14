@@ -1,0 +1,20 @@
+列出所有员工及领导的名的名字
+mysql> select e.ename,a.ename from EMP e left join EMP a on e.mgr=a.empno;
++--------+-------+
+| ename  | ename |
++--------+-------+
+| SMITH  | FORD  |
+| ALLEN  | BLAKE |
+| WARD   | BLAKE |
+| JONES  | KING  |
+| MARTIN | BLAKE |
+| BLAKE  | KING  |
+| CLARK  | KING  |
+| SCOTT  | JONES |
+| KING   | NULL  |
+| TURNER | BLAKE |
+| ADAMS  | SCOTT |
+| JAMES  | BLAKE |
+| FORD   | JONES |
+| MILLER | CLARK |
++--------+-------+

@@ -1,0 +1,40 @@
+列出所有办事员的姓名及部门名称和部门人数
+1.办事员的名字
+mysql> select ename from EMP where job='clerk';
++--------+
+| ename  |
++--------+
+| SMITH  |
+| ADAMS  |
+| JAMES  |
+| MILLER |
++--------+
+2.部门名
+mysql> select e.ename,d.dname from EMP e join DEPT d on e.deptno=d.deptno where job='clerk';
++--------+------------+
+| ename  | dname      |
++--------+------------+
+| SMITH  | RESEARCH   |
+| ADAMS  | RESEARCH   |
+| JAMES  | SALES      |
+| MILLER | ACCOUNTING |
++--------+------------+
+3.计数
+mysql> select deptno,count(*) as num from EMP group by deptno;
++--------+-----+
+| deptno | num |
++--------+-----+
+|     20 |   5 |
+|     30 |   6 |
+|     10 |   3 |
++--------+-----+
+4.表连接
+mysql> select t1.*,t2.num from (select e.ename,d.dname,d.deptno from EMP e join DEPT d on e.deptno=d.deptno where job='clerk') t1 join (select deptno,count(*) as num from EMP group by deptno) t2 on t1.deptno=t2.deptno;
++--------+------------+--------+-----+
+| ename  | dname      | deptno | num |
++--------+------------+--------+-----+
+| SMITH  | RESEARCH   |     20 |   5 |
+| ADAMS  | RESEARCH   |     20 |   5 |
+| JAMES  | SALES      |     30 |   6 |
+| MILLER | ACCOUNTING |     10 |   3 |
++--------+------------+--------+-----+

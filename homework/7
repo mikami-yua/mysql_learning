@@ -1,0 +1,37 @@
+求平均薪水的等级最低的部门名称
+1.按部门名称分组，找出部门的平均薪水的等级
+mysql> select t.*,s.grade from (select deptno,avg(sal) as avgsal from EMP group by deptno) t join SALGRADE s on t.avgsal between s.losal and s.hisal;
++--------+-------------+-------+
+| deptno | avgsal      | grade |
++--------+-------------+-------+
+|     20 | 2175.000000 |     4 |
+|     30 | 1566.666667 |     3 |
+|     10 | 2916.666667 |     4 |
++--------+-------------+-------+
+2.有可能等级最低的有两个不能limit 1
+mysql> select t.*,s.grade
+from (select d.dname,avg(sal) as avgsal from EMP  e join DEPT d on e.deptno=d.deptno group by d.dname) t
+join SALGRADE s
+on t.avgsal between s.losal and s.hisal;
++------------+-------------+-------+
+| dname      | avgsal      | grade |
++------------+-------------+-------+
+| RESEARCH   | 2175.000000 |     4 |
+| SALES      | 1566.666667 |     3 |
+| ACCOUNTING | 2916.666667 |     4 |
++------------+-------------+-------+
+3.获得等级最低的
+mysql> select grade from SALGRADE where(select avg(sal) as avgsal from EMP group by deptno order by avgsal asc limit 1) between losal and hisal;
++-------+
+| grade |
++-------+
+|     3 |
++-------+
+
+mysql> select t.*,s.grade from (select d.dname,avg(sal) as avgsal from EMP  e join DEPT d on e.deptno=d.deptno group by d.dname) t join SALGRADE s on t.avgsal between s.losal and s.hisal
+    -> where s.grade=(select grade from SALGRADE where(select avg(sal) as avgsal from EMP group by deptno order by avgsal asc limit 1) between losal and hisal);
++-------+-------------+-------+
+| dname | avgsal      | grade |
++-------+-------------+-------+
+| SALES | 1566.666667 |     3 |
++-------+-------------+-------+

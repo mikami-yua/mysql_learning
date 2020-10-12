@@ -1,0 +1,11 @@
+取得平均薪水最高的部门名称
+由5
+mysql> select deptno,avg(sal) as avgsal from EMP group by deptno order by avgsal desc limit 1;
+mysql> select d.dname from DEPT d join (select deptno as dn,avg(sal) as avgsal from EMP group by dept
+no order by avgsal desc limit 1) t on t.dn=d.deptno;
++------------+
+| dname      |
++------------+
+| ACCOUNTING |
++------------+
+

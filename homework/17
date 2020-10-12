@@ -1,0 +1,9 @@
+列出至少有5个员工的所有部门
+按照部门标号分组计数，筛选》5的
+mysql> select deptno from EMP group by deptno having count(*)>=5;
++--------+
+| deptno |
++--------+
+|     20 |
+|     30 |
++--------+

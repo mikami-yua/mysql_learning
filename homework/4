@@ -1,0 +1,10 @@
+不使用max，求最高薪水
+降序limit1
+mysql> select ename,sal from EMP order by sal desc limit 1;
++-------+---------+
+| ename | sal     |
++-------+---------+
+| KING  | 5000.00 |
++-------+---------+
+不写desc是升序
+
